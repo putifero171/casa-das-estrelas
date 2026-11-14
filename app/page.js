@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
+import {supabase} from "../lib/supabase";
 const people=["Aladdin Momad","Sheyd Paula","Jessica","Igor Idelson","Maura Melaço","Leonel Francisco","Jujuba Ferraz","Pai Aturmento","Miss Cacau","Fabio Dance","Melancia Fortunato","Vanilson Veigas","Barbie Luzimira","Marlene Oi","Passing Toloba","Victor Renner","Leia It's Love","Duddas de Raça","African Badoie","Dehermes"];
 const initialPosts=[
 {id:1,type:"TOP NEWS",title:"A casa está ao rubro: acompanha tudo o que acontece",excerpt:"As novidades, os momentos decisivos e as conversas que estão a marcar esta edição.",tag:"DESTAQUE",date:"Hoje",status:"Publicado"},
@@ -7,7 +8,7 @@ const initialPosts=[
 {id:3,type:"DENTRO DA CASA",title:"O que esperar dos próximos dias?",excerpt:"Fica atento às próximas dinâmicas e aos desafios dos participantes.",tag:"EXCLUSIVO",date:"Hoje",status:"Rascunho"}];
 export default function Home(){
 const [tab,setTab]=useState("home"),[posts,setPosts]=useState(initialPosts),[filter,setFilter]=useState("TODOS"),[editing,setEditing]=useState(null),[title,setTitle]=useState(""),[excerpt,setExcerpt]=useState(""),[type,setType]=useState("TOP NEWS"),[status,setStatus]=useState("Publicado"),[notice,setNotice]=useState(""),[images,setImages]=useState({});
-useEffect(()=>{try{const s=localStorage.getItem("cde-posts");if(s)setPosts(JSON.parse(s));const im=localStorage.getItem("cde-people-images");if(im)setImages(JSON.parse(im));}catch{}},[]);
+useEffect(()=>{let active=true;const load=async()=>{try{const im=localStorage.getItem("cde-people-images");if(im&&active)setImages(JSON.parse(im));}catch{}if(!supabase)return;const [{data:postData,error:postError},{data:peopleData,error:peopleError}]=await Promise.all([supabase.from("posts").select("*").eq("status","Publicado").order("created_at",{ascending:false}),supabase.from("contestants").select("display_order,name,photo_url").order("display_order")]);if(!active)return;if(!postError&&postData)setPosts(postData.map(p=>({...p,id:p.id,date:new Date(p.created_at).toLocaleDateString("pt-PT")})));if(!peopleError&&peopleData){const next={};peopleData.forEach(p=>{if(p.photo_url)next[p.display_order-1]=p.photo_url;});if(Object.keys(next).length)setImages(current=>({...current,...next}));}};load();return()=>{active=false;};},[]);
 const save=(next)=>{setPosts(next);try{localStorage.setItem("cde-posts",JSON.stringify(next));}catch{}};
 const visible=useMemo(()=>posts.filter(p=>p.status==="Publicado"&&(filter==="TODOS"||p.type===filter)),[posts,filter]);
 const startNew=()=>{setEditing(null);setTitle("");setExcerpt("");setType("TOP NEWS");setStatus("Publicado");setNotice("");setTab("editor");};
