@@ -58,3 +58,46 @@ on conflict (id) do nothing;
 drop policy if exists "Public can view contestant photos" on storage.objects;
 create policy "Public can view contestant photos" on storage.objects for select using (bucket_id = 'contestant-photos');
 -- Upload/delete permissions intentionally omitted until admin authentication is enabled.
+
+
+-- ADMIN ACCESS: restrict content management to the designated administrator.
+-- Run this block after creating/verifying the admin account in Supabase Auth.
+drop policy if exists "Admin manages contestants" on public.contestants;
+create policy "Admin manages contestants" on public.contestants
+for all to authenticated
+using ((auth.jwt() ->> 'email') = 'blackmoonplc@gmail.com')
+with check ((auth.jwt() ->> 'email') = 'blackmoonplc@gmail.com');
+
+drop policy if exists "Admin manages posts" on public.posts;
+create policy "Admin manages posts" on public.posts
+for all to authenticated
+using ((auth.jwt() ->> 'email') = 'blackmoonplc@gmail.com')
+with check ((auth.jwt() ->> 'email') = 'blackmoonplc@gmail.com');
+
+drop policy if exists "Admin uploads contestant photos" on storage.objects;
+create policy "Admin uploads contestant photos" on storage.objects
+for insert to authenticated
+with check (
+  bucket_id = 'contestant-photos'
+  and (auth.jwt() ->> 'email') = 'blackmoonplc@gmail.com'
+);
+
+drop policy if exists "Admin updates contestant photos" on storage.objects;
+create policy "Admin updates contestant photos" on storage.objects
+for update to authenticated
+using (
+  bucket_id = 'contestant-photos'
+  and (auth.jwt() ->> 'email') = 'blackmoonplc@gmail.com'
+)
+with check (
+  bucket_id = 'contestant-photos'
+  and (auth.jwt() ->> 'email') = 'blackmoonplc@gmail.com'
+);
+
+drop policy if exists "Admin deletes contestant photos" on storage.objects;
+create policy "Admin deletes contestant photos" on storage.objects
+for delete to authenticated
+using (
+  bucket_id = 'contestant-photos'
+  and (auth.jwt() ->> 'email') = 'blackmoonplc@gmail.com'
+);
