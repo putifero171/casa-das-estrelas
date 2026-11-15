@@ -160,3 +160,5 @@ footer .brand b{font-size:25px}
 .footerLegal{max-width:1450px;margin:24px auto 0!important;color:#596273!important;font-size:11px!important;line-height:1.6}
 @media(max-width:850px){.footerGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:35px}.footerAbout{grid-column:1/-1}.footerAbout>p{max-width:600px}}
 @media(max-width:520px){.siteFooter{padding:38px 5vw 26px!important}.footerGrid{gap:30px 20px}.footerCol button{font-size:12px}.footerBottom{align-items:flex-start;flex-direction:column}.footerBottom>div{gap:14px}}
+
+.infoPage{min-height:55vh}.infoPage .notice{max-width:900px;margin:28px 0;padding:24px}.infoBody{max-width:900px;color:#c2c5ce;font-size:15px;line-height:1.85}.infoBody p{padding:12px 0;border-bottom:1px solid #292a31}
